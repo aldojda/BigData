@@ -1,0 +1,510 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyN2xSqX2BRu1a6j6pp0F3S8",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/aldojda/BigData/blob/main/practica_4%20muestreo\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Practica Muestreo\n",
+        "\n",
+        "### Paso 1:  Identificar el grupo Objetivo\n",
+        "El conjunto de datos contiene información de comentarios generados en una aplicación y niveles de clasificación"
+      ],
+      "metadata": {
+        "id": "m92b2KbmqDKw"
+      }
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 21,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 177
+        },
+        "id": "kglDa8jRp9qV",
+        "outputId": "27ab4e8b-411c-4a37-8e99-b2dc3963ffb8"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Drive already mounted at /content/gdrive/; to attempt to forcibly remount, call drive.mount(\"/content/gdrive/\", force_remount=True).\n"
+          ]
+        },
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "     Mes  Number       Date Submitted  month  \\\n",
+              "0  Enero   14167  2022-01-31 23:58:05      1   \n",
+              "\n",
+              "  ¿Qué podemos agregar a Heishop para hacer más satisfactoria tu experiencia?   \\\n",
+              "0                                               nada                             \n",
+              "\n",
+              "  opinion_cleaned category level 4                         category level 3  \\\n",
+              "0            nada         Positive  Everything is good | Nothing to improve   \n",
+              "\n",
+              "                          category level 2  \\\n",
+              "0  Everything is good | Nothing to improve   \n",
+              "\n",
+              "                          category level 1  weights  \n",
+              "0  Everything is good | Nothing to improve    14696  "
+            ],
+            "text/html": [
+              "\n",
+              "\n",
+              "  <div id=\"df-352e220b-a30f-4486-b221-14016fa85aac\">\n",
+              "    <div class=\"colab-df-container\">\n",
+              "      <div>\n",
+              "<style scoped>\n",
+              "    .dataframe tbody tr th:only-of-type {\n",
+              "        vertical-align: middle;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe tbody tr th {\n",
+              "        vertical-align: top;\n",
+              "    }\n",
+              "\n",
+              "    .dataframe thead th {\n",
+              "        text-align: right;\n",
+              "    }\n",
+              "</style>\n",
+              "<table border=\"1\" class=\"dataframe\">\n",
+              "  <thead>\n",
+              "    <tr style=\"text-align: right;\">\n",
+              "      <th></th>\n",
+              "      <th>Mes</th>\n",
+              "      <th>Number</th>\n",
+              "      <th>Date Submitted</th>\n",
+              "      <th>month</th>\n",
+              "      <th>¿Qué podemos agregar a Heishop para hacer más satisfactoria tu experiencia?</th>\n",
+              "      <th>opinion_cleaned</th>\n",
+              "      <th>category level 4</th>\n",
+              "      <th>category level 3</th>\n",
+              "      <th>category level 2</th>\n",
+              "      <th>category level 1</th>\n",
+              "      <th>weights</th>\n",
+              "    </tr>\n",
+              "  </thead>\n",
+              "  <tbody>\n",
+              "    <tr>\n",
+              "      <th>0</th>\n",
+              "      <td>Enero</td>\n",
+              "      <td>14167</td>\n",
+              "      <td>2022-01-31 23:58:05</td>\n",
+              "      <td>1</td>\n",
+              "      <td>nada</td>\n",
+              "      <td>nada</td>\n",
+              "      <td>Positive</td>\n",
+              "      <td>Everything is good | Nothing to improve</td>\n",
+              "      <td>Everything is good | Nothing to improve</td>\n",
+              "      <td>Everything is good | Nothing to improve</td>\n",
+              "      <td>14696</td>\n",
+              "    </tr>\n",
+              "  </tbody>\n",
+              "</table>\n",
+              "</div>\n",
+              "      <button class=\"colab-df-convert\" onclick=\"convertToInteractive('df-352e220b-a30f-4486-b221-14016fa85aac')\"\n",
+              "              title=\"Convert this dataframe to an interactive table.\"\n",
+              "              style=\"display:none;\">\n",
+              "\n",
+              "  <svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "       width=\"24px\">\n",
+              "    <path d=\"M0 0h24v24H0V0z\" fill=\"none\"/>\n",
+              "    <path d=\"M18.56 5.44l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94zm-11 1L8.5 8.5l.94-2.06 2.06-.94-2.06-.94L8.5 2.5l-.94 2.06-2.06.94zm10 10l.94 2.06.94-2.06 2.06-.94-2.06-.94-.94-2.06-.94 2.06-2.06.94z\"/><path d=\"M17.41 7.96l-1.37-1.37c-.4-.4-.92-.59-1.43-.59-.52 0-1.04.2-1.43.59L10.3 9.45l-7.72 7.72c-.78.78-.78 2.05 0 2.83L4 21.41c.39.39.9.59 1.41.59.51 0 1.02-.2 1.41-.59l7.78-7.78 2.81-2.81c.8-.78.8-2.07 0-2.86zM5.41 20L4 18.59l7.72-7.72 1.47 1.35L5.41 20z\"/>\n",
+              "  </svg>\n",
+              "      </button>\n",
+              "\n",
+              "\n",
+              "\n",
+              "    <div id=\"df-523c96e9-7811-4e27-b0d8-076e0cd25f24\">\n",
+              "      <button class=\"colab-df-quickchart\" onclick=\"quickchart('df-523c96e9-7811-4e27-b0d8-076e0cd25f24')\"\n",
+              "              title=\"Suggest charts.\"\n",
+              "              style=\"display:none;\">\n",
+              "\n",
+              "<svg xmlns=\"http://www.w3.org/2000/svg\" height=\"24px\"viewBox=\"0 0 24 24\"\n",
+              "     width=\"24px\">\n",
+              "    <g>\n",
+              "        <path d=\"M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z\"/>\n",
+              "    </g>\n",
+              "</svg>\n",
+              "      </button>\n",
+              "    </div>\n",
+              "\n",
+              "<style>\n",
+              "  .colab-df-quickchart {\n",
+              "    background-color: #E8F0FE;\n",
+              "    border: none;\n",
+              "    border-radius: 50%;\n",
+              "    cursor: pointer;\n",
+              "    display: none;\n",
+              "    fill: #1967D2;\n",
+              "    height: 32px;\n",
+              "    padding: 0 0 0 0;\n",
+              "    width: 32px;\n",
+              "  }\n",
+              "\n",
+              "  .colab-df-quickchart:hover {\n",
+              "    background-color: #E2EBFA;\n",
+              "    box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "    fill: #174EA6;\n",
+              "  }\n",
+              "\n",
+              "  [theme=dark] .colab-df-quickchart {\n",
+              "    background-color: #3B4455;\n",
+              "    fill: #D2E3FC;\n",
+              "  }\n",
+              "\n",
+              "  [theme=dark] .colab-df-quickchart:hover {\n",
+              "    background-color: #434B5C;\n",
+              "    box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "    fill: #FFFFFF;\n",
+              "  }\n",
+              "</style>\n",
+              "\n",
+              "    <script>\n",
+              "      async function quickchart(key) {\n",
+              "        const containerElement = document.querySelector('#' + key);\n",
+              "        const charts = await google.colab.kernel.invokeFunction(\n",
+              "            'suggestCharts', [key], {});\n",
+              "      }\n",
+              "    </script>\n",
+              "\n",
+              "      <script>\n",
+              "\n",
+              "function displayQuickchartButton(domScope) {\n",
+              "  let quickchartButtonEl =\n",
+              "    domScope.querySelector('#df-523c96e9-7811-4e27-b0d8-076e0cd25f24 button.colab-df-quickchart');\n",
+              "  quickchartButtonEl.style.display =\n",
+              "    google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "}\n",
+              "\n",
+              "        displayQuickchartButton(document);\n",
+              "      </script>\n",
+              "      <style>\n",
+              "    .colab-df-container {\n",
+              "      display:flex;\n",
+              "      flex-wrap:wrap;\n",
+              "      gap: 12px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert {\n",
+              "      background-color: #E8F0FE;\n",
+              "      border: none;\n",
+              "      border-radius: 50%;\n",
+              "      cursor: pointer;\n",
+              "      display: none;\n",
+              "      fill: #1967D2;\n",
+              "      height: 32px;\n",
+              "      padding: 0 0 0 0;\n",
+              "      width: 32px;\n",
+              "    }\n",
+              "\n",
+              "    .colab-df-convert:hover {\n",
+              "      background-color: #E2EBFA;\n",
+              "      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);\n",
+              "      fill: #174EA6;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert {\n",
+              "      background-color: #3B4455;\n",
+              "      fill: #D2E3FC;\n",
+              "    }\n",
+              "\n",
+              "    [theme=dark] .colab-df-convert:hover {\n",
+              "      background-color: #434B5C;\n",
+              "      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);\n",
+              "      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));\n",
+              "      fill: #FFFFFF;\n",
+              "    }\n",
+              "  </style>\n",
+              "\n",
+              "      <script>\n",
+              "        const buttonEl =\n",
+              "          document.querySelector('#df-352e220b-a30f-4486-b221-14016fa85aac button.colab-df-convert');\n",
+              "        buttonEl.style.display =\n",
+              "          google.colab.kernel.accessAllowed ? 'block' : 'none';\n",
+              "\n",
+              "        async function convertToInteractive(key) {\n",
+              "          const element = document.querySelector('#df-352e220b-a30f-4486-b221-14016fa85aac');\n",
+              "          const dataTable =\n",
+              "            await google.colab.kernel.invokeFunction('convertToInteractive',\n",
+              "                                                     [key], {});\n",
+              "          if (!dataTable) return;\n",
+              "\n",
+              "          const docLinkHtml = 'Like what you see? Visit the ' +\n",
+              "            '<a target=\"_blank\" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'\n",
+              "            + ' to learn more about interactive tables.';\n",
+              "          element.innerHTML = '';\n",
+              "          dataTable['output_type'] = 'display_data';\n",
+              "          await google.colab.output.renderOutput(dataTable, element);\n",
+              "          const docLink = document.createElement('div');\n",
+              "          docLink.innerHTML = docLinkHtml;\n",
+              "          element.appendChild(docLink);\n",
+              "        }\n",
+              "      </script>\n",
+              "    </div>\n",
+              "  </div>\n"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 21
+        }
+      ],
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "\n",
+        "from google.colab import drive\n",
+        "drive.mount(\"/content/gdrive/\")\n",
+        "\n",
+        "file = \"/content/gdrive/MyDrive/06-Proyectos/Heishop NPS/NPS_hsp_v2.csv\"\n",
+        "raw = pd.read_csv(file)\n",
+        "raw.drop(columns = [\"User\"], inplace = True)\n",
+        "raw[\"weights\"] = raw[\"category level 4\"].map(raw[\"category level 4\"].value_counts().to_dict())\n",
+        "raw.head(1)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "raw.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "jfgsdbg_qR96",
+        "outputId": "efa19feb-2814-4048-ba36-f8b404ff216f"
+      },
+      "execution_count": 22,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(58298, 11)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 22
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Paso 2: Crear un rango específico de muestreo:\n",
+        "\n",
+        "Se utilizará una fracción del 40% del conjunto de datos"
+      ],
+      "metadata": {
+        "id": "uj1mshX_qgDz"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df_sample = raw.sample(frac = 0.4)\n",
+        "df_sample.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "SQKY9Ge5q-Nk",
+        "outputId": "e7438de0-633e-4467-c18a-d3c43294c6db"
+      },
+      "execution_count": 23,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(23319, 11)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 23
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Paso 3 Seleccionar el método adecuado para los datos\n",
+        "\n",
+        "muestreo estratificado para garantizar que se respeten las proporciones  de la variable category level 4"
+      ],
+      "metadata": {
+        "id": "wKtietWorfKn"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df_estratified = raw.sample(n = 1000, weights = \"weights\", random_state = 45)\n",
+        "df_estratified.shape"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "F14mDPxCrdnN",
+        "outputId": "8de56ed2-c089-4517-a4e2-9e7200a21bf8"
+      },
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "(1000, 11)"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 25
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Paso 4: Especificar el tamaño de la muestra"
+      ],
+      "metadata": {
+        "id": "dfY1Z4Kgts5q"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "sample = 1000\n",
+        "#calcular los tamaños de las muestras para cada estrato\n",
+        "\n",
+        "dict_stratum = (raw[\"category level 4\"].value_counts(normalize = True) * sample).round().astype(int).to_dict()\n",
+        "dict_stratum"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "fGFbpZz2rQu8",
+        "outputId": "63bff037-4cbe-463f-f619-7e38c9da8c58"
+      },
+      "execution_count": 47,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "{'Trash': 421, 'Negative': 327, 'Positive': 252}"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 47
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "##  Paso 5 recoletamos los datos muestreados"
+      ],
+      "metadata": {
+        "id": "_T18tcr_ueyo"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "def stratified_sample(group):\n",
+        "    clase = group.name\n",
+        "    n = dict_stratum.get(clase,0)\n",
+        "    return group.sample(n=n)\n",
+        "\n",
+        "df_sample_stratified = raw.groupby(\"category level 4\", group_keys= False).apply(stratified_sample)"
+      ],
+      "metadata": {
+        "id": "bfkt1TrDsBlG"
+      },
+      "execution_count": 38,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "df_sample_stratified[\"category level 4\"].value_counts().plot(kind = \"bar\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 495
+        },
+        "id": "lC9BOceKwkca",
+        "outputId": "442dae28-a066-42e7-ec60-e38f0be11426"
+      },
+      "execution_count": 46,
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "data": {
+            "text/plain": [
+              "<Axes: >"
+            ]
+          },
+          "metadata": {},
+          "execution_count": 46
+        },
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "<Figure size 640x480 with 1 Axes>"
+            ],
+            "image/png": "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0tJidUkA89JiBJQQk5SUpIqKCh05ckSlpaUaNWqUJOmbb75Rly5dLK4OoWr//v1asWKFbDabbrnlFiUkJCgvL08bN260ujSEMOaltViDEmKefvpp3X333YqKilJycrK2bNmisLAwPfXUU3rttde44geWO3r0qFauXKmSkhKtXbtWPXr00J49e6wuCyGOeXn+cRVPiPnlL3+p9PR0VVdX6/rrr1dY2D8OovXp04c1KDBCZGSkMjMz9c033+h///d/9cknn1hdEsC8tABHUAAY4cR/oT7//PMqKytTUlKSbr31VuXm5nIJPCzDvLQOASUEffXVV/rrX/+q6upqNTU1BfRxq3tYYdy4cVq9erUiIyN1yy23KDc3V2632+qyEOKYl9biFE+IKSsr0w033KA+ffro008/1cCBA/33QbnqqqusLg8hKjw8XC+99JIyMzMVHh5udTmAJOal1TiCEmKuueYaZWVlae7cuYqOjtb27dsVFxen3NxcjR49WlOnTrW6RAAACCihJjo6Wtu2bVPfvn11wQUX6L333tPll1+u7du368Ybb9SXX35pdYkIEQsXLtSUKVPUpUsXLVy48DvH3nXXXeepKoQ65qU5CCghxuVyaf369RowYIBSUlI0f/583XDDDdq+fbuuvfZaNTQ0WF0iQkTv3r314Ycfqnv37urdu/dpx9lsNn3xxRfnsTKEMualOViDEmKGDh2q9957TwMGDNCYMWN07733aseOHXrttdc0dOhQq8tDCNm7d+8pXwNWYl6agzvJhpjHHntM6enpkqS5c+dq5MiRevHFF9WrVy8tWbLE4uoQqgoLC3X06NGT2r/99lsVFhZaUBHAvLQap3hCSEtLi/7nf/5HqampiomJsbocwC88PFz79+9XXFxcQPuBAwcUFxfHM1BgCealtTiCEkLCw8M1atQoffPNN1aXAgTw+Xyy2WwntW/fvt3/cEvgfGNeWos1KCFm4MCB+uKLL75z8RdwvlxwwQWy2Wyy2Wy69NJLA/4YtLS0qKGhQXfeeaeFFSIUMS/NwCmeEFNaWqqCggI9/PDDSktLU7du3QL6HQ6HRZUhFC1fvlw+n0//8R//oSeeeEJOp9PfFxERoV69enHnTpx3zEszEFBCRGFhoe69915FR0f72/75vwpOHMrknCqsUF5erh/96Efq3Lmz1aUAfsxLaxFQQsSJxV7f9wTOn/zkJ+epIuDUjh07dtIzojiyh/PF6/X655vX6/3OsczLc4uAEiLCwsLk8XhOWo0OmODo0aO6//779dJLL+nAgQMn9XNkD+fLP1+5ExYWdspFshxxPj9YJBtCTvUPDTDBzJkztX79ei1atEjjx49XcXGx/v73v+uZZ57R/PnzrS4PIWTdunX+K3TWr19vcTWhjSMoISIsLExOp/N7Q8rBgwfPU0XA/9ezZ08999xzGjFihBwOh7Zs2aJ+/frpT3/6k1544QW9+eabVpcI4DzjCEoImTt3bsBqdMAUBw8eVJ8+fST947z+iaA8bNgwnrANy5SWlioqKkrDhg2TJBUXF+vZZ59VSkqKiouLdcEFF1hcYcdGQAkh48aNYw0KjNSnTx/t3btXPXv2VP/+/fXSSy/pmmuu0apVq7jrMSwzc+ZMPfroo5KkHTt2KD8/X/fee6/Wr1+v/Px8LV261OIKOzYCSohg/QlMdscdd2j79u36yU9+ogceeEBjx47V73//ex0/flyPPfaY1eUhRO3du1cpKSmSpFdffVVjx47VvHnztGXLFo0ZM8bi6jo+AkqIYKkRTDZjxgz/64yMDH366aeqrKxUv379lJqaamFlCGURERH+hwWuXbtWEyZMkCTFxsZ+7yXIOHsElBDR2tpqdQnAD5acnKzk5GSry0CIGzZsmPLz83Xttdfq/fff14svvihJ+uyzz9SjRw+Lq+v4CCgALLdw4cJTtttsNnXp0kX9+vXT8OHDFR4efp4rQyj7/e9/r1/+8pd65ZVXtGjRIl188cWSpLfeekujR4+2uLqOj8uMAViud+/e+vrrr3X06FH/lRHffPONIiMjFRUVpbq6OvXp00fr169XUlKSxdUCOB/CrC4AAObNm6err75an3/+uQ4cOKADBw7os88+U3p6up588klVV1fL5XIFrFUBzoeWlha9+uqreuSRR/TII49o5cqV3EH2POEICgDL9e3bV6+++qoGDx4c0L5161bl5OToiy++0MaNG5WTk6P9+/dbUyRCzu7duzVmzBj9/e9/12WXXSZJqqqqUlJSkt544w317dvX4go7No6gALDc/v371dzcfFJ7c3OzPB6PJCkxMVGHDx8+36UhhN11113q27ev9u3bpy1btmjLli2qrq5W7969ddddd1ldXodHQAFguZ/+9Kf6xS9+oa1bt/rbtm7dqqlTp+q6666T9I8bZfXu3duqEhGCysvLtWDBAv+zeSSpe/fumj9/vsrLyy2sLDQQUABYbsmSJYqNjVVaWprsdrvsdruGDBmi2NhYLVmyRJIUFRWl//qv/7K4UoQSu91+yqN2DQ0NioiIsKCi0MIaFADG+PTTT/XZZ59Jki677DL/eX/AChMmTNCWLVu0ZMkSXXPNNZKkzZs3a/LkyUpLS9OyZcusLbCDI6AAMEZTU5P27t2rvn37qlMnbtMEax06dEi33367Vq1a5Z+Pzc3NuuGGG7Rs2TIevnqOEVAAWO7o0aOaPn26li9fLukfd+rs06ePpk+frosvvlgPPPCAxRUilLS2tuq3v/2t/vrXv6qpqUk9e/bUxIkTZbPZNGDAAPXr18/qEkMCa1AAWK6goEDbt2/Xu+++qy5duvjbMzIy/LcXB86X3/zmN/rVr36lqKgoXXzxxXrzzTf1+uuva+zYsYST84gjKAAsl5ycrBdffFFDhw5VdHS0tm/frj59+mj37t266qqreDAbzqtLLrlE9913n37xi19I+seDArOzs/Xtt98qLIz/rj9f+F8agOW+/vprxcXFndR+5MgR2Ww2CypCKKuurtaYMWP87zMyMmSz2VRTU2NhVaGHgALAckOGDNEbb7zhf38ilPz3f/+33G63VWUhRDU3NwecapSkzp076/jx4xZVFJpYJg/AcvPmzVNWVpZ27dql5uZmPfnkk9q1a5c2btzIDbFw3vl8Pt1+++2y2+3+tmPHjunOO+9Ut27d/G2vvfaaFeWFDNagADDCnj17NH/+fG3fvl0NDQ266qqrNGvWLA0aNMjq0hBi7rjjjh80bunSpee4ktBGQAEAAMbhFA8Ay4SFhX3vIlibzXbKBwkC6NgIKAAss3LlytP2VVRUaOHChWptbT2PFQEwBad4ABilqqpKDzzwgFatWqXc3FwVFhYqOTnZ6rIAnGdcZgzACDU1NZo8ebIGDRqk5uZmbdu2TcuXLyecACGKgALAUvX19Zo1a5b69eunnTt3qqysTKtWrdLAgQOtLg2AhViDAsAyCxYs0KOPPiqXy6UXXnhBN954o9UlATAEa1AAWCYsLExdu3ZVRkaGwsPDTzuOG2IBoYcjKAAsM2HCBJ61A+CUOIICAACMwyJZAABgHAIKAAAwDgEFAAAYh4ACAACMQ0ABAADGIaAAAADjEFAAAIBx/h8ZS24JQes9MQAAAABJRU5ErkJggg==\n"
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "]"
+      ],
+      "metadata": {
+        "id": "Kp7H89BawrnY"
+      },
+      "execution_count": null,
+      "outputs": []
+    }
+  ]
+}
